@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optimizaciones de performance */
+* {
+  box-sizing: border-box;
+}
+
+/* Aceleración GPU para animaciones */
+.animate-pulse,
+.animate-ping,
+.animate-spin,
+.animate-bounce {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Optimización de scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reducir motion para usuarios que lo prefieren */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Optimización de fuentes */
+@font-face {
+  font-display: swap;
+}
