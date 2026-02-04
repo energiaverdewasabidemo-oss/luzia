@@ -189,8 +189,7 @@ Vengo de luzia.pro - Comparador IA`;
       
       // Mostrar instrucciones detalladas
       setTimeout(async () => {
-        await navigator.share({
-          alert(`📎 ARCHIVO DESCARGADO: ${uploadedFile.name}
+        alert(`📎 ARCHIVO DESCARGADO: ${uploadedFile.name}
 
 PASOS EN WHATSAPP:
 1️⃣ Envía el mensaje que aparece
