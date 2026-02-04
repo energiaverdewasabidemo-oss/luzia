@@ -4,9 +4,10 @@ import LuziaAvatar from './LuziaAvatar';
 
 interface HeroSectionProps {
   onChatOpen: () => void;
+  onInvoiceUpload?: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ onChatOpen }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ onChatOpen, onInvoiceUpload }) => {
   const [particles, setParticles] = React.useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
 
   React.useEffect(() => {
@@ -71,11 +72,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onChatOpen }) => {
             
             <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
               <button 
-                onClick={() => onChatOpen('Quiero comparar tarifas de luz y gas para ahorrar')}
+                onClick={onInvoiceUpload}
                 className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white px-6 lg:px-10 py-4 lg:py-5 rounded-xl lg:rounded-2xl font-black text-lg lg:text-xl hover:from-purple-400 hover:via-pink-400 hover:to-cyan-400 transition-all duration-500 transform hover:scale-105 lg:hover:scale-110 shadow-2xl hover:shadow-purple-500/50 flex items-center justify-center space-x-2 lg:space-x-3 border-2 border-white/20"
               >
                 <Sparkles className="h-5 w-5 lg:h-6 lg:w-6 animate-spin" />
-                <span className="text-center">COMPARAR TARIFAS GRATIS</span>
+                <span className="text-center">📄 FOTO/SUBIR FACTURA</span>
                 <ArrowRight className="h-5 w-5 lg:h-6 lg:w-6 animate-pulse" />
               </button>
               

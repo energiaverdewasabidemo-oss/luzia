@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useCallback } from 'react';
+import InvoiceUploadPopup from './components/InvoiceUploadPopup';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import CookiePolicy from './components/CookiePolicy';
@@ -22,6 +23,7 @@ import CookiePopup from './components/CookiePopup';
 
 function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isInvoiceUploadOpen, setIsInvoiceUploadOpen] = useState(false);
   const [initialMessage, setInitialMessage] = useState('');
   const [currentPage, setCurrentPage] = useState('home');
 
@@ -45,6 +47,14 @@ function App() {
 
   const handleChatAction = () => {
     handleChatOpen('Hola, quiero información sobre LUZIA');
+  };
+
+  const handleInvoiceUploadOpen = () => {
+    setIsInvoiceUploadOpen(true);
+  };
+
+  const handleInvoiceUploadClose = () => {
+    setIsInvoiceUploadOpen(false);
   };
 
   // Render legal pages
@@ -83,17 +93,18 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header onChatOpen={handleChatOpen} onPageChange={handlePageChange} />
-      <HeroSection onChatOpen={handleChatOpen} />
-      <BenefitsSection onChatOpen={handleChatOpen} />
-      <HowItWorksSection onChatOpen={handleChatOpen} />
+      <Header onChatOpen={handleChatOpen} onPageChange={handlePageChange} onInvoiceUpload={handleInvoiceUploadOpen} />
+      <HeroSection onChatOpen={handleChatOpen} onInvoiceUpload={handleInvoiceUploadOpen} />
+      <BenefitsSection onChatOpen={handleChatOpen} onInvoiceUpload={handleInvoiceUploadOpen} />
+      <HowItWorksSection onChatOpen={handleChatOpen} onInvoiceUpload={handleInvoiceUploadOpen} />
       <TestimonialsSection />
-      <ComparatorSection onChatOpen={handleChatOpen} />
+      <ComparatorSection onChatOpen={handleChatOpen} onInvoiceUpload={handleInvoiceUploadOpen} />
       <TrustSection />
-      <FinalCTASection onChatOpen={handleChatOpen} />
+      <FinalCTASection onChatOpen={handleChatOpen} onInvoiceUpload={handleInvoiceUploadOpen} />
       <Footer onPageChange={handlePageChange} />
       <FloatingChatButton onClick={handleChatOpen} />
       <ChatBot isOpen={isChatOpen} onClose={handleChatClose} initialMessage={initialMessage} />
+      <InvoiceUploadPopup isOpen={isInvoiceUploadOpen} onClose={handleInvoiceUploadClose} />
       <CookiePopup onPageChange={handlePageChange} />
     </div>
   );

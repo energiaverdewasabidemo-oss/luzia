@@ -3,10 +3,11 @@ import { Zap, Sparkles, Brain } from 'lucide-react';
 
 interface HeaderProps {
   onChatOpen: (message?: string) => void;
+  onInvoiceUpload?: () => void;
   onPageChange?: (page: string) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
+const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange, onInvoiceUpload }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   return (
@@ -89,14 +90,14 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
 
           {/* Desktop CTA Button */}
           <button 
-            onClick={() => onChatOpen('Quiero comparar tarifas de luz y gas')}
+            onClick={onInvoiceUpload}
             className="hidden md:block relative bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 text-white px-4 lg:px-10 py-2 lg:py-4 rounded-xl lg:rounded-2xl font-black text-sm lg:text-xl hover:from-purple-500 hover:via-pink-400 hover:to-cyan-400 transition-all duration-500 transform hover:scale-110 shadow-lg lg:shadow-2xl hover:shadow-purple-500/50 border border-white/30 lg:border-2 group overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
             <div className="relative flex items-center space-x-1 lg:space-x-3">
               <Brain className="h-4 w-4 lg:h-6 lg:w-6 animate-pulse" />
-              <span className="hidden lg:inline">COMPARAR AHORA</span>
-              <span className="lg:hidden">COMPARAR</span>
+              <span className="hidden lg:inline">FOTO/SUBIR FACTURA</span>
+              <span className="lg:hidden">SUBIR FACTURA</span>
               <Sparkles className="h-3 w-3 lg:h-5 lg:w-5 animate-spin" />
             </div>
           </button>
@@ -142,12 +143,12 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
               <button 
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  onChatOpen('Quiero comparar tarifas de luz y gas');
+                  onInvoiceUpload?.();
                 }}
                 className="w-full bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 text-white px-6 py-4 rounded-xl font-black text-lg shadow-lg flex items-center justify-center space-x-3"
               >
                 <Brain className="h-5 w-5 animate-pulse" />
-                <span>COMPARAR AHORA</span>
+                <span>FOTO/SUBIR FACTURA</span>
                 <Sparkles className="h-4 w-4 animate-spin" />
               </button>
             </nav>

@@ -3,9 +3,10 @@ import { ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
 
 interface FinalCTASectionProps {
   onChatOpen: (message?: string) => void;
+  onInvoiceUpload?: () => void;
 }
 
-const FinalCTASection: React.FC<FinalCTASectionProps> = ({ onChatOpen }) => {
+const FinalCTASection: React.FC<FinalCTASectionProps> = ({ onChatOpen, onInvoiceUpload }) => {
   return (
     <section className="py-20 bg-gradient-to-r from-indigo-900 via-purple-900 via-pink-900 to-cyan-600 relative overflow-hidden">
       {/* Background Pattern */}
@@ -56,12 +57,12 @@ const FinalCTASection: React.FC<FinalCTASectionProps> = ({ onChatOpen }) => {
         {/* Main CTA */}
         <div className="space-y-4 lg:space-y-6">
           <button 
-            onClick={() => onChatOpen('Quiero empezar a comparar tarifas ahora mismo')}
+            onClick={onInvoiceUpload}
             className="bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 text-white px-8 lg:px-16 py-4 lg:py-8 rounded-2xl lg:rounded-3xl font-black text-xl lg:text-3xl hover:from-purple-400 hover:via-pink-400 hover:to-cyan-400 transition-all duration-500 transform hover:scale-105 lg:hover:scale-115 shadow-xl lg:shadow-2xl hover:shadow-purple-500/50 flex items-center justify-center space-x-2 lg:space-x-4 mx-auto border-2 lg:border-4 border-white/30"
           >
             <Sparkles className="h-6 w-6 lg:h-8 lg:w-8 animate-spin" />
             <TrendingUp className="h-6 w-6 lg:h-8 lg:w-8 animate-pulse" />
-            <span>COMPARAR TARIFAS GRATIS</span>
+            <span>📄 FOTO/SUBIR FACTURA</span>
             <ArrowRight className="h-6 w-6 lg:h-8 lg:w-8 animate-pulse" />
           </button>
           

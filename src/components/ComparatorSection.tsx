@@ -3,9 +3,10 @@ import { Filter, Zap, Flame, BarChart3, CheckCircle } from 'lucide-react';
 
 interface ComparatorSectionProps {
   onChatOpen: (message?: string) => void;
+  onInvoiceUpload?: () => void;
 }
 
-const ComparatorSection: React.FC<ComparatorSectionProps> = ({ onChatOpen }) => {
+const ComparatorSection: React.FC<ComparatorSectionProps> = ({ onChatOpen, onInvoiceUpload }) => {
   const [activeFilter, setActiveFilter] = useState('dual');
   const [consumption, setConsumption] = useState('medio');
 
@@ -178,10 +179,10 @@ const ComparatorSection: React.FC<ComparatorSectionProps> = ({ onChatOpen }) => 
         <div className="text-center mt-8 lg:mt-12">
           <p className="text-gray-700 mb-4 lg:mb-6 text-lg lg:text-xl font-semibold">¿Quieres ver más opciones personalizadas para tu consumo?</p>
           <button 
-            onClick={() => onChatOpen('Quiero una comparación personalizada para mi consumo')}
+            onClick={onInvoiceUpload}
             className="bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white px-8 lg:px-12 py-4 lg:py-6 rounded-2xl lg:rounded-3xl font-black text-lg lg:text-2xl hover:from-purple-500 hover:via-pink-500 hover:to-cyan-500 transition-all duration-500 transform hover:scale-105 lg:hover:scale-110 shadow-xl lg:shadow-2xl hover:shadow-purple-500/50 border-2 lg:border-4 border-white/20"
           >
-            💡 OBTENER COMPARACIÓN PERSONALIZADA
+            📄 FOTO/SUBIR FACTURA
           </button>
         </div>
       </div>
