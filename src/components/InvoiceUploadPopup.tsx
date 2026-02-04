@@ -45,6 +45,74 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     });
   };
 
+  const shareToWhatsApp = async (file: File, message: string) => {
+    try {
+      // Verificar si el navegador soporta Web Share API
+      if (navigator.share && navigator.canShare) {
+        const shareData = {
+          title: 'Factura para LUZIA - Comparador de Luz y Gas',
+          text: message,
+          files: [file]
+        };
+
+        // Verificar si se pueden compartir archivos
+        if (navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          return true;
+        }
+      }
+
+      // Fallback: Crear URL del archivo y abrir WhatsApp
+      const fileUrl = URL.createObjectURL(file);
+      
+      // Crear un enlace temporal para descargar el archivo
+      const downloadLink = document.createElement('a');
+      downloadLink.href = fileUrl;
+      downloadLink.download = file.name;
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+
+      // Mostrar instrucciones específicas
+      const instructions = `📱 INSTRUCCIONES PARA ENVIAR:
+
+1️⃣ Se abrirá WhatsApp con el mensaje
+2️⃣ ANTES de enviar el texto, adjunta tu factura:
+   • Toca el botón 📎 (clip) en WhatsApp
+   • Selecciona "Documento" o "Cámara"
+   • Elige tu archivo: ${file.name}
+3️⃣ Después envía el mensaje de texto
+4️⃣ ¡Listo! Recibirás respuesta inmediata
+
+¿Quieres continuar?`;
+
+      if (confirm(instructions)) {
+        // Abrir WhatsApp con el mensaje
+        const phoneNumber = '34621508300';
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        
+        // Abrir WhatsApp
+        window.open(whatsappUrl, '_blank');
+        
+        // Mostrar el archivo para descarga (por si lo necesitan)
+        setTimeout(() => {
+          if (confirm('¿Quieres descargar el archivo para tenerlo listo para adjuntar en WhatsApp?')) {
+            downloadLink.click();
+          }
+        }, 1000);
+      }
+
+      // Limpiar
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(fileUrl);
+      
+      return true;
+    } catch (error) {
+      console.error('Error sharing to WhatsApp:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadedFile) return;
@@ -52,14 +120,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     setIsSubmitting(true);
 
     try {
-      // Crear FormData para enviar el archivo
-      const formDataToSend = new FormData();
-      formDataToSend.append('file', uploadedFile);
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
-      formDataToSend.append('phone', formData.phone);
-
-      // Preparar mensaje para WhatsApp con información del archivo
+      // Preparar mensaje para WhatsApp
       const whatsappMessage = `🔥 NUEVA SOLICITUD DE COMPARACIÓN - LUZIA 🔥
 
 📋 DATOS DEL CLIENTE:
@@ -73,38 +134,40 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 • Tipo: ${uploadedFile.type}
 
 💡 SOLICITUD: Comparar tarifas de luz y gas
-
 ⚡ Vengo de luzia.pro - Comparador IA
 
 ---
-NOTA: El cliente enviará el archivo de la factura en el siguiente mensaje. Por favor, proceder con el análisis y comparación de tarifas una vez recibido.`;
+🚀 ANÁLISIS INMEDIATO: Nuestro equipo analizará esta factura y enviará las mejores opciones de ahorro en menos de 5 minutos.
+
+✅ Sin compromiso ✅ Sin permanencia ✅ Ahorro garantizado`;
 
       // Mostrar paso de éxito
       setStep('success');
 
-      // Codificar mensaje para URL
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      const phoneNumber = '34621508300';
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      // Intentar compartir con Web Share API o fallback
+      const shared = await shareToWhatsApp(uploadedFile, whatsappMessage);
 
-      // Abrir WhatsApp después de un breve delay
-      setTimeout(() => {
+      if (!shared) {
+        // Fallback adicional: solo abrir WhatsApp con mensaje
+        const phoneNumber = '34621508300';
+        const encodedMessage = encodeURIComponent(whatsappMessage);
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         window.open(whatsappUrl, '_blank');
-        
-        // Mostrar instrucciones para enviar el archivo
+
+        // Mostrar instrucciones
         setTimeout(() => {
-          alert(`📎 IMPORTANTE: 
+          alert(`📎 RECUERDA: 
 
-Después de enviar el mensaje de texto, por favor:
+Después de enviar el mensaje de texto en WhatsApp:
 
-1️⃣ Adjunta el archivo de tu factura en WhatsApp
-2️⃣ Puedes usar el botón 📎 (clip) en WhatsApp
-3️⃣ Selecciona "Documento" o "Cámara" 
-4️⃣ Envía tu factura: ${uploadedFile.name}
+1️⃣ Toca el botón 📎 (clip)
+2️⃣ Selecciona "Documento" 
+3️⃣ Busca y adjunta: ${uploadedFile.name}
+4️⃣ ¡Envía el archivo!
 
-¡Nuestro equipo analizará tu factura inmediatamente!`);
+Tu factura será analizada inmediatamente.`);
         }, 2000);
-      }, 1500);
+      }
 
       // Cerrar popup después de 4 segundos
       setTimeout(() => {
@@ -314,7 +377,7 @@ Después de enviar el mensaje de texto, por favor:
                   ) : (
                     <>
                       <Send className="h-5 w-5" />
-                      <span>📱 Enviar por WhatsApp</span>
+                      <span>📱 Enviar a WhatsApp</span>
                     </>
                   )}
                 </button>
@@ -334,14 +397,14 @@ Después de enviar el mensaje de texto, por favor:
           {step === 'success' && (
             <div className="text-center py-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h4 className="text-xl font-black text-green-600 mb-4">¡Datos Enviados!</h4>
+              <h4 className="text-xl font-black text-green-600 mb-4">¡Enviando a WhatsApp!</h4>
               <p className="text-gray-700 mb-6">
-                Te estamos redirigiendo a WhatsApp. Después del mensaje de texto, 
-                <strong> adjunta tu factura usando el botón 📎 de WhatsApp</strong>.
+                Se está abriendo WhatsApp con tu mensaje y archivo listos para enviar.
               </p>
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <p className="text-sm text-green-700 font-semibold">
-                  📎 Recuerda adjuntar tu factura en WhatsApp<br/>
+                  📱 WhatsApp se abre automáticamente<br/>
+                  📎 Archivo listo para adjuntar<br/>
                   ⚡ Análisis en menos de 5 minutos<br/>
                   💰 Ahorro medio: €487/año<br/>
                   ✅ Sin compromiso ni permanencia
