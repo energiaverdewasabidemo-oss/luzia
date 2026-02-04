@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, Upload, Camera, FileText, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Upload, Camera, FileText, Send, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react';
 
 interface InvoiceUploadPopupProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface FormData {
 }
 
 const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState<'upload' | 'preview' | 'form' | 'success'>('upload');
+  const [step, setStep] = useState<'upload' | 'preview' | 'invoice-sent' | 'form' | 'success'>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileDataUrl, setFileDataUrl] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
@@ -34,17 +34,6 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     });
   };
 
-  const uploadToTemporaryStorage = async (file: File): Promise<string> => {
-    try {
-      // Convertir archivo a data URL directamente
-      return await convertFileToDataUrl(file);
-    } catch (error) {
-      console.error('Error uploading to temporary storage:', error);
-      // Fallback: intentar convertir de nuevo
-      return await convertFileToDataUrl(file);
-    }
-  };
-
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -56,7 +45,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
       
       setUploadedFile(file);
       
-      // Convertir archivo a data URL para preview y envío
+      // Convertir archivo a data URL para preview
       try {
         const dataUrl = await convertFileToDataUrl(file);
         setFileDataUrl(dataUrl);
@@ -68,6 +57,107 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     }
   };
 
+  const sendInvoiceToWhatsApp = async () => {
+    if (!uploadedFile) return false;
+
+    try {
+      // Intentar usar Web Share API para enviar el archivo directamente
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [uploadedFile] })) {
+        await navigator.share({
+          title: 'Factura para LUZIA - Comparador de Luz y Gas',
+          text: '📄 FACTURA PARA ANÁLISIS - LUZIA\n\n⚡ Comparador de luz y gas con IA\n🔍 Análisis gratuito de tu factura\n💰 Encuentra la tarifa más barata\n\nVengo de luzia.pro',
+          files: [uploadedFile]
+        });
+        return true;
+      }
+      
+      // Fallback: Abrir WhatsApp con instrucciones para adjuntar
+      const phoneNumber = '34621508300';
+      const message = `📄 FACTURA PARA ANÁLISIS - LUZIA
+
+⚡ Comparador de luz y gas con IA
+🔍 Análisis gratuito de mi factura
+💰 Quiero encontrar la tarifa más barata
+
+📎 ADJUNTO MI FACTURA:
+• Archivo: ${uploadedFile.name}
+• Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+• Tipo: ${uploadedFile.type.includes('pdf') ? 'PDF' : 'Imagen'}
+
+Vengo de luzia.pro - Comparador IA`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+
+      // Mostrar instrucciones para adjuntar el archivo
+      setTimeout(() => {
+        alert(`📎 IMPORTANTE: Después de enviar este mensaje, adjunta tu factura:
+
+1️⃣ Toca el botón 📎 (clip) en WhatsApp
+2️⃣ Selecciona "Documento" o "Cámara"
+3️⃣ Busca y envía: ${uploadedFile.name}
+
+¡Tu factura será analizada en menos de 5 minutos!`);
+      }, 1000);
+
+      return true;
+    } catch (error) {
+      console.error('Error sending invoice to WhatsApp:', error);
+      return false;
+    }
+  };
+
+  const sendDataToWhatsApp = async () => {
+    try {
+      const phoneNumber = '34621508300';
+      const message = `👤 MIS DATOS PARA EL ANÁLISIS - LUZIA
+
+📋 INFORMACIÓN DEL CLIENTE:
+• Nombre: ${formData.name}
+• Email: ${formData.email}
+• Teléfono: ${formData.phone}
+
+📄 FACTURA ENVIADA ANTERIORMENTE:
+• Archivo: ${uploadedFile?.name}
+• Tamaño: ${uploadedFile ? (uploadedFile.size / 1024 / 1024).toFixed(2) : '0'} MB
+
+🚀 SOLICITUD: Análisis completo y comparación de tarifas
+⚡ Vengo de luzia.pro - Comparador IA
+
+---
+✅ Factura + Datos enviados
+💰 Esperando análisis y mejores ofertas
+🔥 Sin compromiso ni permanencia`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+      return true;
+    } catch (error) {
+      console.error('Error sending data to WhatsApp:', error);
+      return false;
+    }
+  };
+
+  const handleSendInvoice = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      const success = await sendInvoiceToWhatsApp();
+      if (success) {
+        setStep('invoice-sent');
+      }
+    } catch (error) {
+      console.error('Error sending invoice:', error);
+      alert('Error al enviar la factura. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -75,117 +165,23 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     });
   };
 
-  const sendToWhatsApp = async () => {
-    if (!uploadedFile || !fileDataUrl) return;
-
-    try {
-      let fileUrl = '';
-      
-      // Intentar subir a almacenamiento temporal
-      try {
-        fileUrl = await uploadToTemporaryStorage(uploadedFile);
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        fileUrl = 'Archivo procesado correctamente';
-      }
-
-      // Crear mensaje estructurado
-      const whatsappMessage = `🔥 NUEVA SOLICITUD DE COMPARACIÓN - LUZIA 🔥
-
-📋 DATOS DEL CLIENTE:
-• Nombre: ${formData.name}
-• Email: ${formData.email}
-• Teléfono: ${formData.phone}
-
-📄 FACTURA ADJUNTA:
-• Archivo: ${uploadedFile.name}
-• Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-• Tipo: ${uploadedFile.type}
-• Estado: Archivo procesado y listo para envío
-
-💡 SOLICITUD: Comparar tarifas de luz y gas
-⚡ Vengo de luzia.pro - Comparador IA
-
----
-🚀 ANÁLISIS INMEDIATO: Nuestro equipo analizará esta factura y enviará las mejores opciones de ahorro en menos de 5 minutos.
-
-✅ Sin compromiso ✅ Sin permanencia ✅ Ahorro garantizado`;
-
-      // Abrir WhatsApp con el mensaje
-      const phoneNumber = '34621508300';
-      const encodedMessage = encodeURIComponent(whatsappMessage);
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-      
-      window.open(whatsappUrl, '_blank');
-
-      // Si es una imagen, intentar también enviarla como imagen
-      if (uploadedFile.type.startsWith('image/')) {
-        // Crear un enlace temporal para la imagen
-        const imageUrl = URL.createObjectURL(uploadedFile);
-        
-        // Mostrar instrucciones para enviar la imagen
-        setTimeout(() => {
-          const instructions = `📸 IMAGEN DE LA FACTURA:
-
-Para enviar la imagen de tu factura:
-
-1️⃣ Después de enviar el mensaje de texto
-2️⃣ Toca el botón 📎 (clip) en WhatsApp  
-3️⃣ Selecciona "Cámara" o "Galería"
-4️⃣ Busca y envía: ${uploadedFile.name}
-
-O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
-
-          if (confirm(instructions + '\n\n¿Quieres ver la imagen para hacer captura?')) {
-            // Abrir la imagen en una nueva ventana
-            const newWindow = window.open('', '_blank');
-            if (newWindow) {
-              newWindow.document.write(`
-                <html>
-                  <head><title>Factura - ${uploadedFile.name}</title></head>
-                  <body style="margin:0; padding:20px; background:#f0f0f0;">
-                    <h2>Factura para LUZIA</h2>
-                    <p>Haz captura de pantalla de esta imagen y envíala por WhatsApp</p>
-                    <img src="${imageUrl}" style="max-width:100%; height:auto; border:2px solid #333; border-radius:10px;" />
-                    <p><strong>Archivo:</strong> ${uploadedFile.name}</p>
-                    <p><strong>Tamaño:</strong> ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                  </body>
-                </html>
-              `);
-            }
-          }
-        }, 2000);
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error sending to WhatsApp:', error);
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitData = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadedFile) return;
-
     setIsSubmitting(true);
 
     try {
-      // Mostrar paso de éxito
-      setStep('success');
-
-      // Enviar a WhatsApp
-      await sendToWhatsApp();
-
-      // Cerrar popup después de 4 segundos
-      setTimeout(() => {
-        onClose();
-        resetForm();
-      }, 4000);
-
+      const success = await sendDataToWhatsApp();
+      if (success) {
+        setStep('success');
+        // Cerrar popup después de 4 segundos
+        setTimeout(() => {
+          onClose();
+          resetForm();
+        }, 4000);
+      }
     } catch (error) {
-      console.error('Error al procesar la factura:', error);
-      alert('Error al procesar la factura. Por favor, inténtalo de nuevo.');
+      console.error('Error sending data:', error);
+      alert('Error al enviar los datos. Por favor, inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -232,8 +228,8 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
                 <FileText className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-xl font-black">Subir Factura</h3>
-                <p className="text-purple-100 text-sm font-medium">Comparación personalizada</p>
+                <h3 className="text-xl font-black">Análisis de Factura</h3>
+                <p className="text-purple-100 text-sm font-medium">Paso a paso como WhatsApp</p>
               </div>
             </div>
             <button
@@ -250,8 +246,8 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
           {step === 'upload' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h4 className="text-lg font-black text-gray-900 mb-2">Sube tu factura de luz o gas</h4>
-                <p className="text-gray-600 text-sm">Como si fuera WhatsApp - elige cómo subir tu archivo</p>
+                <h4 className="text-lg font-black text-gray-900 mb-2">Paso 1: Envía tu factura</h4>
+                <p className="text-gray-600 text-sm">Como si fuera WhatsApp - elige cómo enviar tu factura</p>
               </div>
 
               <div className="space-y-4">
@@ -260,7 +256,7 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
                   onClick={triggerFileUpload}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg text-lg"
                 >
-                  <Upload className="h-5 w-5" />
+                  <Upload className="h-6 w-6" />
                   <span>📄 Elegir Archivo</span>
                 </button>
 
@@ -269,7 +265,7 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
                   onClick={triggerCameraCapture}
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg text-lg"
                 >
-                  <Camera className="h-5 w-5" />
+                  <Camera className="h-6 w-6" />
                   <span>📸 Tomar Foto</span>
                 </button>
               </div>
@@ -308,11 +304,11 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
           {step === 'preview' && uploadedFile && (
             <div className="space-y-6">
               <div className="text-center">
-                <h4 className="text-lg font-black text-gray-900 mb-2">¡Factura subida correctamente!</h4>
-                <p className="text-gray-600 text-sm">Revisa que sea la correcta antes de continuar</p>
+                <h4 className="text-lg font-black text-gray-900 mb-2">¡Factura lista para enviar!</h4>
+                <p className="text-gray-600 text-sm">Revisa que sea correcta y envíala a WhatsApp</p>
               </div>
 
-              {/* File preview - Larger and more prominent */}
+              {/* File preview */}
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200 shadow-lg">
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
@@ -327,7 +323,7 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
                   <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
                 
-                {/* Image preview if it's an image - Larger */}
+                {/* Image preview if it's an image */}
                 {uploadedFile.type.startsWith('image/') && fileDataUrl && (
                   <div className="mt-4">
                     <img 
@@ -342,10 +338,21 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
               {/* Action buttons */}
               <div className="space-y-3">
                 <button
-                  onClick={() => setStep('form')}
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-6 py-4 rounded-xl font-black text-lg hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  onClick={handleSendInvoice}
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl font-black text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-3 disabled:opacity-50"
                 >
-                  ✅ Continuar con mis datos
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Enviando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageCircle className="h-5 w-5" />
+                      <span>📱 Enviar Factura a WhatsApp</span>
+                    </>
+                  )}
                 </button>
                 
                 <button
@@ -358,29 +365,59 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
             </div>
           )}
 
-          {step === 'form' && uploadedFile && (
+          {step === 'invoice-sent' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h4 className="text-lg font-black text-gray-900 mb-2">Ahora completa tus datos</h4>
+                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <h4 className="text-xl font-black text-green-600 mb-2">¡Factura enviada!</h4>
+                <p className="text-gray-700 mb-4">
+                  Tu factura se ha enviado a WhatsApp. Ahora completa tus datos para el análisis.
+                </p>
+              </div>
+
+              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                <div className="flex items-center space-x-3 mb-3">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span className="font-bold text-green-800">Paso 1 completado</span>
+                </div>
+                <p className="text-sm text-green-700">
+                  📱 Factura enviada por WhatsApp<br/>
+                  📄 Archivo: {uploadedFile?.name}<br/>
+                  ⚡ Listo para análisis
+                </p>
+              </div>
+
+              <button
+                onClick={() => setStep('form')}
+                className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-6 py-4 rounded-xl font-black text-lg hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                ➡️ Paso 2: Completar mis datos
+              </button>
+            </div>
+          )}
+
+          {step === 'form' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h4 className="text-lg font-black text-gray-900 mb-2">Paso 2: Completa tus datos</h4>
                 <p className="text-gray-600 text-sm">Para que nuestro equipo te contacte con la mejor oferta</p>
               </div>
 
               {/* File preview - Compact version */}
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <div className="flex items-center space-x-3">
-                  <FileText className="h-5 w-5 text-gray-600" />
+                  <CheckCircle className="h-5 w-5 text-green-500" />
                   <div className="flex-1">
-                    <p className="font-bold text-gray-800 text-sm truncate">{uploadedFile.name}</p>
+                    <p className="font-bold text-gray-800 text-sm">Factura enviada: {uploadedFile?.name}</p>
                     <p className="text-xs text-gray-600">
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                      {uploadedFile ? (uploadedFile.size / 1024 / 1024).toFixed(2) : '0'} MB • Ya en WhatsApp
                     </p>
                   </div>
-                  <CheckCircle className="h-5 w-5 text-green-500" />
                 </div>
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmitData} className="space-y-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
                     Nombre y Apellidos *
@@ -434,42 +471,33 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
                   {isSubmitting ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Procesando...</span>
+                      <span>Enviando datos...</span>
                     </>
                   ) : (
                     <>
                       <Send className="h-5 w-5" />
-                      <span>📱 Enviar a WhatsApp</span>
+                      <span>📱 Enviar Datos a WhatsApp</span>
                     </>
                   )}
                 </button>
               </form>
-
-              <div className="text-center">
-                <button
-                  onClick={() => setStep('preview')}
-                  className="text-sm text-purple-600 hover:text-purple-800 font-semibold underline"
-                >
-                  ← Volver a la factura
-                </button>
-              </div>
             </div>
           )}
 
           {step === 'success' && (
             <div className="text-center py-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h4 className="text-xl font-black text-green-600 mb-4">¡Enviado a WhatsApp!</h4>
+              <h4 className="text-xl font-black text-green-600 mb-4">¡Todo enviado correctamente!</h4>
               <p className="text-gray-700 mb-6">
-                Tu factura y datos han sido enviados correctamente.
+                Factura y datos enviados por separado a WhatsApp.
               </p>
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <p className="text-sm text-green-700 font-semibold">
-                  📱 Mensaje enviado por WhatsApp<br/>
-                  📄 Factura incluida en el mensaje<br/>
+                  ✅ Paso 1: Factura enviada<br/>
+                  ✅ Paso 2: Datos enviados<br/>
                   ⚡ Análisis en menos de 5 minutos<br/>
                   💰 Ahorro medio: €487/año<br/>
-                  ✅ Sin compromiso ni permanencia
+                  🔥 Sin compromiso ni permanencia
                 </p>
               </div>
             </div>
