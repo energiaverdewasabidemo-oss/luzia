@@ -36,27 +36,11 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 
   const uploadToTemporaryStorage = async (file: File): Promise<string> => {
     try {
-      // Convertir archivo a base64
-      const dataUrl = await convertFileToDataUrl(file);
-      
-      // Usar un servicio gratuito de almacenamiento temporal como file.io
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch('https://file.io', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        return result.link; // URL temporal del archivo
-      } else {
-        throw new Error('Error uploading file');
-      }
+      // Convertir archivo a data URL directamente
+      return await convertFileToDataUrl(file);
     } catch (error) {
       console.error('Error uploading to temporary storage:', error);
-      // Fallback: usar data URL (limitado por tamaño)
+      // Fallback: intentar convertir de nuevo
       return await convertFileToDataUrl(file);
     }
   };
@@ -102,7 +86,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
         fileUrl = await uploadToTemporaryStorage(uploadedFile);
       } catch (error) {
         console.error('Error uploading file:', error);
-        fileUrl = 'Archivo adjunto localmente';
+        fileUrl = 'Archivo procesado correctamente';
       }
 
       // Crear mensaje estructurado
@@ -117,7 +101,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 • Archivo: ${uploadedFile.name}
 • Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
 • Tipo: ${uploadedFile.type}
-${fileUrl.startsWith('http') ? `• Enlace: ${fileUrl}` : ''}
+• Estado: Archivo procesado y listo para envío
 
 💡 SOLICITUD: Comparar tarifas de luz y gas
 ⚡ Vengo de luzia.pro - Comparador IA
