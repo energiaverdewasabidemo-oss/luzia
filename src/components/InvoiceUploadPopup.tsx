@@ -15,6 +15,7 @@ interface FormData {
 const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<'upload' | 'form' | 'success'>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [fileDataUrl, setFileDataUrl] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -24,7 +25,43 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const convertFileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const uploadToTemporaryStorage = async (file: File): Promise<string> => {
+    try {
+      // Convertir archivo a base64
+      const dataUrl = await convertFileToDataUrl(file);
+      
+      // Usar un servicio gratuito de almacenamiento temporal como file.io
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('https://file.io', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        return result.link; // URL temporal del archivo
+      } else {
+        throw new Error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading to temporary storage:', error);
+      // Fallback: usar data URL (limitado por tamaño)
+      return await convertFileToDataUrl(file);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       // Verificar tamaño del archivo (máximo 10MB)
@@ -34,7 +71,16 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
       }
       
       setUploadedFile(file);
-      setStep('form');
+      
+      // Convertir archivo a data URL para preview y envío
+      try {
+        const dataUrl = await convertFileToDataUrl(file);
+        setFileDataUrl(dataUrl);
+        setStep('form');
+      } catch (error) {
+        console.error('Error processing file:', error);
+        alert('Error al procesar el archivo. Inténtalo de nuevo.');
+      }
     }
   };
 
@@ -45,82 +91,21 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     });
   };
 
-  const shareToWhatsApp = async (file: File, message: string) => {
-    try {
-      // Verificar si el navegador soporta Web Share API
-      if (navigator.share && navigator.canShare) {
-        const shareData = {
-          title: 'Factura para LUZIA - Comparador de Luz y Gas',
-          text: message,
-          files: [file]
-        };
-
-        // Verificar si se pueden compartir archivos
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          return true;
-        }
-      }
-
-      // Fallback: Crear URL del archivo y abrir WhatsApp
-      const fileUrl = URL.createObjectURL(file);
-      
-      // Crear un enlace temporal para descargar el archivo
-      const downloadLink = document.createElement('a');
-      downloadLink.href = fileUrl;
-      downloadLink.download = file.name;
-      downloadLink.style.display = 'none';
-      document.body.appendChild(downloadLink);
-
-      // Mostrar instrucciones específicas
-      const instructions = `📱 INSTRUCCIONES PARA ENVIAR:
-
-1️⃣ Se abrirá WhatsApp con el mensaje
-2️⃣ ANTES de enviar el texto, adjunta tu factura:
-   • Toca el botón 📎 (clip) en WhatsApp
-   • Selecciona "Documento" o "Cámara"
-   • Elige tu archivo: ${file.name}
-3️⃣ Después envía el mensaje de texto
-4️⃣ ¡Listo! Recibirás respuesta inmediata
-
-¿Quieres continuar?`;
-
-      if (confirm(instructions)) {
-        // Abrir WhatsApp con el mensaje
-        const phoneNumber = '34621508300';
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-        
-        // Abrir WhatsApp
-        window.open(whatsappUrl, '_blank');
-        
-        // Mostrar el archivo para descarga (por si lo necesitan)
-        setTimeout(() => {
-          if (confirm('¿Quieres descargar el archivo para tenerlo listo para adjuntar en WhatsApp?')) {
-            downloadLink.click();
-          }
-        }, 1000);
-      }
-
-      // Limpiar
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(fileUrl);
-      
-      return true;
-    } catch (error) {
-      console.error('Error sharing to WhatsApp:', error);
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!uploadedFile) return;
-
-    setIsSubmitting(true);
+  const sendToWhatsApp = async () => {
+    if (!uploadedFile || !fileDataUrl) return;
 
     try {
-      // Preparar mensaje para WhatsApp
+      let fileUrl = '';
+      
+      // Intentar subir a almacenamiento temporal
+      try {
+        fileUrl = await uploadToTemporaryStorage(uploadedFile);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        fileUrl = 'Archivo adjunto localmente';
+      }
+
+      // Crear mensaje estructurado
       const whatsappMessage = `🔥 NUEVA SOLICITUD DE COMPARACIÓN - LUZIA 🔥
 
 📋 DATOS DEL CLIENTE:
@@ -132,6 +117,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 • Archivo: ${uploadedFile.name}
 • Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
 • Tipo: ${uploadedFile.type}
+${fileUrl.startsWith('http') ? `• Enlace: ${fileUrl}` : ''}
 
 💡 SOLICITUD: Comparar tarifas de luz y gas
 ⚡ Vengo de luzia.pro - Comparador IA
@@ -141,33 +127,71 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 
 ✅ Sin compromiso ✅ Sin permanencia ✅ Ahorro garantizado`;
 
+      // Abrir WhatsApp con el mensaje
+      const phoneNumber = '34621508300';
+      const encodedMessage = encodeURIComponent(whatsappMessage);
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+      
+      window.open(whatsappUrl, '_blank');
+
+      // Si es una imagen, intentar también enviarla como imagen
+      if (uploadedFile.type.startsWith('image/')) {
+        // Crear un enlace temporal para la imagen
+        const imageUrl = URL.createObjectURL(uploadedFile);
+        
+        // Mostrar instrucciones para enviar la imagen
+        setTimeout(() => {
+          const instructions = `📸 IMAGEN DE LA FACTURA:
+
+Para enviar la imagen de tu factura:
+
+1️⃣ Después de enviar el mensaje de texto
+2️⃣ Toca el botón 📎 (clip) en WhatsApp  
+3️⃣ Selecciona "Cámara" o "Galería"
+4️⃣ Busca y envía: ${uploadedFile.name}
+
+O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
+
+          if (confirm(instructions + '\n\n¿Quieres ver la imagen para hacer captura?')) {
+            // Abrir la imagen en una nueva ventana
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+              newWindow.document.write(`
+                <html>
+                  <head><title>Factura - ${uploadedFile.name}</title></head>
+                  <body style="margin:0; padding:20px; background:#f0f0f0;">
+                    <h2>Factura para LUZIA</h2>
+                    <p>Haz captura de pantalla de esta imagen y envíala por WhatsApp</p>
+                    <img src="${imageUrl}" style="max-width:100%; height:auto; border:2px solid #333; border-radius:10px;" />
+                    <p><strong>Archivo:</strong> ${uploadedFile.name}</p>
+                    <p><strong>Tamaño:</strong> ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </body>
+                </html>
+              `);
+            }
+          }
+        }, 2000);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error sending to WhatsApp:', error);
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadedFile) return;
+
+    setIsSubmitting(true);
+
+    try {
       // Mostrar paso de éxito
       setStep('success');
 
-      // Intentar compartir con Web Share API o fallback
-      const shared = await shareToWhatsApp(uploadedFile, whatsappMessage);
-
-      if (!shared) {
-        // Fallback adicional: solo abrir WhatsApp con mensaje
-        const phoneNumber = '34621508300';
-        const encodedMessage = encodeURIComponent(whatsappMessage);
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-
-        // Mostrar instrucciones
-        setTimeout(() => {
-          alert(`📎 RECUERDA: 
-
-Después de enviar el mensaje de texto en WhatsApp:
-
-1️⃣ Toca el botón 📎 (clip)
-2️⃣ Selecciona "Documento" 
-3️⃣ Busca y adjunta: ${uploadedFile.name}
-4️⃣ ¡Envía el archivo!
-
-Tu factura será analizada inmediatamente.`);
-        }, 2000);
-      }
+      // Enviar a WhatsApp
+      await sendToWhatsApp();
 
       // Cerrar popup después de 4 segundos
       setTimeout(() => {
@@ -186,6 +210,7 @@ Tu factura será analizada inmediatamente.`);
   const resetForm = () => {
     setStep('upload');
     setUploadedFile(null);
+    setFileDataUrl('');
     setFormData({ name: '', email: '', phone: '' });
     setIsSubmitting(false);
   };
@@ -315,6 +340,17 @@ Tu factura será analizada inmediatamente.`);
                   </div>
                   <CheckCircle className="h-5 w-5 text-green-600" />
                 </div>
+                
+                {/* Image preview if it's an image */}
+                {uploadedFile.type.startsWith('image/') && fileDataUrl && (
+                  <div className="mt-3">
+                    <img 
+                      src={fileDataUrl} 
+                      alt="Preview" 
+                      className="w-full h-32 object-cover rounded-lg border border-green-300"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Form */}
@@ -399,12 +435,13 @@ Tu factura será analizada inmediatamente.`);
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
               <h4 className="text-xl font-black text-green-600 mb-4">¡Enviando a WhatsApp!</h4>
               <p className="text-gray-700 mb-6">
-                Se está abriendo WhatsApp con tu mensaje y archivo listos para enviar.
+                Se está abriendo WhatsApp con tu mensaje y enlace al archivo.
               </p>
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <p className="text-sm text-green-700 font-semibold">
                   📱 WhatsApp se abre automáticamente<br/>
-                  📎 Archivo listo para adjuntar<br/>
+                  📎 Enlace al archivo incluido<br/>
+                  📸 Si es imagen, también puedes hacer captura<br/>
                   ⚡ Análisis en menos de 5 minutos<br/>
                   💰 Ahorro medio: €487/año<br/>
                   ✅ Sin compromiso ni permanencia
