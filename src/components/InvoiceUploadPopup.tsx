@@ -61,26 +61,97 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     if (!uploadedFile) return false;
 
     try {
-      // Crear un enlace de descarga temporal del archivo
-      const fileUrl = URL.createObjectURL(uploadedFile);
+      const phoneNumber = '34621508300';
       
-      // Intentar usar Web Share API para enviar el archivo directamente
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [uploadedFile] })) {
-        await navigator.share({
-          title: 'Factura para análisis - LUZIA',
-          text: '📄 FACTURA PARA ANÁLISIS - LUZIA\n\n⚡ Comparador de luz y gas con IA\n🔍 Análisis gratuito de mi factura\n💰 Quiero encontrar la tarifa más barata\n\nVengo de luzia.pro',
-          files: [uploadedFile]
-        });
+      // Intentar usar Web Share API nativo para enviar el archivo directamente
+      if (navigator.share) {
+        // Verificar si puede compartir archivos
+        const canShareFiles = navigator.canShare && navigator.canShare({ files: [uploadedFile] });
         
-        // Limpiar el URL temporal
-        URL.revokeObjectURL(fileUrl);
+        if (canShareFiles) {
+          // Compartir archivo directamente (aparecerá como adjunto real)
+          await navigator.share({
+            title: 'Factura para análisis - LUZIA',
+            text: `📄 FACTURA PARA ANÁLISIS - LUZIA
+
+⚡ Comparador de luz y gas con IA
+🔍 Análisis gratuito de mi factura
+💰 Quiero encontrar la tarifa más barata
+
+📎 Adjunto mi factura: ${uploadedFile.name}
+Vengo de luzia.pro - Comparador IA`,
+            files: [uploadedFile]
+          });
+          return true;
+        }
+      }
+      
+      // Fallback 1: Intentar abrir WhatsApp con el archivo usando intent (Android)
+      if (navigator.userAgent.includes('Android')) {
+        const fileUrl = URL.createObjectURL(uploadedFile);
+        const whatsappIntent = `intent://send?text=${encodeURIComponent(`📄 FACTURA PARA ANÁLISIS - LUZIA
+
+⚡ Comparador de luz y gas con IA
+🔍 Análisis gratuito de mi factura
+💰 Quiero encontrar la tarifa más barata
+
+📎 Adjuntando mi factura: ${uploadedFile.name}
+Vengo de luzia.pro - Comparador IA`)}&type=text/plain#Intent;scheme=whatsapp;package=com.whatsapp;end`;
+        
+        // Crear enlace temporal para el archivo
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = uploadedFile.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Abrir WhatsApp
+        window.location.href = whatsappIntent;
+        
+        setTimeout(() => URL.revokeObjectURL(fileUrl), 30000);
         return true;
       }
       
-      // Fallback: Crear enlace de descarga y abrir WhatsApp
-      const phoneNumber = '34621508300';
+      // Fallback 2: Crear blob URL y usar clipboard API si está disponible
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          // Intentar copiar el archivo al clipboard
+          const clipboardItem = new ClipboardItem({
+            [uploadedFile.type]: uploadedFile
+          });
+          
+          await navigator.clipboard.write([clipboardItem]);
+          
+          // Abrir WhatsApp con mensaje
+          const message = `📄 FACTURA PARA ANÁLISIS - LUZIA
+
+⚡ Comparador de luz y gas con IA
+🔍 Análisis gratuito de mi factura
+💰 Quiero encontrar la tarifa más barata
+
+📎 ARCHIVO COPIADO AL PORTAPAPELES
+• Archivo: ${uploadedFile.name}
+• Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+• Instrucción: Pegar archivo con Ctrl+V
+
+Vengo de luzia.pro - Comparador IA`;
+
+          const encodedMessage = encodeURIComponent(message);
+          const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+          window.open(whatsappUrl, '_blank');
+          
+          alert('📎 Archivo copiado al portapapeles. En WhatsApp, pega el archivo con Ctrl+V o Cmd+V');
+          return true;
+        } catch (clipboardError) {
+          console.log('Clipboard API failed, trying next method');
+        }
+      }
       
-      // Crear un enlace temporal para descargar el archivo
+      // Fallback 3: Método tradicional con descarga
+      const fileUrl = URL.createObjectURL(uploadedFile);
+      
+      // Crear enlace de descarga
       const downloadLink = document.createElement('a');
       downloadLink.href = fileUrl;
       downloadLink.download = uploadedFile.name;
@@ -92,39 +163,46 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 🔍 Análisis gratuito de mi factura
 💰 Quiero encontrar la tarifa más barata
 
-📎 VOY A ADJUNTAR MI FACTURA:
+📎 ARCHIVO DESCARGADO AUTOMÁTICAMENTE:
 • Archivo: ${uploadedFile.name}
 • Tamaño: ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-• Tipo: ${uploadedFile.type.includes('pdf') ? 'PDF' : 'Imagen'} 
+• Ubicación: Carpeta de Descargas
 
-🔽 DESCARGANDO ARCHIVO AUTOMÁTICAMENTE...
+INSTRUCCIONES:
+1️⃣ Envía este mensaje
+2️⃣ Toca el botón 📎 (adjuntar)
+3️⃣ Selecciona "Documento"
+4️⃣ Busca: ${uploadedFile.name}
+5️⃣ ¡Envía el archivo!
+
 Vengo de luzia.pro - Comparador IA`;
 
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
       
-      // Descargar el archivo automáticamente
+      // Descargar archivo
       downloadLink.click();
       document.body.removeChild(downloadLink);
       
       // Abrir WhatsApp
       window.open(whatsappUrl, '_blank');
-
-      // Mostrar instrucciones
+      
+      // Mostrar instrucciones detalladas
       setTimeout(() => {
-        alert(`📎 PERFECTO: Tu factura se ha descargado automáticamente.
+        await navigator.share({
+          alert(`📎 ARCHIVO DESCARGADO: ${uploadedFile.name}
 
-AHORA EN WHATSAPP:
+PASOS EN WHATSAPP:
 1️⃣ Envía el mensaje que aparece
-2️⃣ Toca el botón 📎 (clip) 
-3️⃣ Selecciona "Documento"
-4️⃣ Busca en "Descargas": ${uploadedFile.name}
+2️⃣ Toca el botón 📎 (clip)
+3️⃣ Selecciona "Documento" 
+4️⃣ Busca en Descargas: ${uploadedFile.name}
 5️⃣ ¡Envía el archivo!
 
-Tu asistente podrá abrir el PDF directamente desde WhatsApp.`);
+El PDF aparecerá como adjunto clickeable en WhatsApp.`);
       }, 1000);
 
-      // Limpiar el URL temporal después de un tiempo
+      // Limpiar URL temporal
       setTimeout(() => {
         URL.revokeObjectURL(fileUrl);
       }, 30000);
@@ -132,6 +210,7 @@ Tu asistente podrá abrir el PDF directamente desde WhatsApp.`);
       return true;
     } catch (error) {
       console.error('Error sending invoice to WhatsApp:', error);
+      alert('Error al enviar la factura. Por favor, inténtalo de nuevo.');
       return false;
     }
   };
