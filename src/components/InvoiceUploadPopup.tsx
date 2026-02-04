@@ -13,7 +13,7 @@ interface FormData {
 }
 
 const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState<'upload' | 'form' | 'success'>('upload');
+  const [step, setStep] = useState<'upload' | 'preview' | 'form' | 'success'>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [fileDataUrl, setFileDataUrl] = useState<string>('');
   const [formData, setFormData] = useState<FormData>({
@@ -60,7 +60,7 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
       try {
         const dataUrl = await convertFileToDataUrl(file);
         setFileDataUrl(dataUrl);
-        setStep('form');
+        setStep('preview');
       } catch (error) {
         console.error('Error processing file:', error);
         alert('Error al procesar el archivo. Inténtalo de nuevo.');
@@ -250,36 +250,36 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
           {step === 'upload' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h4 className="text-lg font-black text-gray-900 mb-2">¿Cómo quieres subir tu factura?</h4>
-                <p className="text-gray-600 text-sm">Elige la opción que prefieras</p>
+                <h4 className="text-lg font-black text-gray-900 mb-2">Sube tu factura de luz o gas</h4>
+                <p className="text-gray-600 text-sm">Como si fuera WhatsApp - elige cómo subir tu archivo</p>
               </div>
 
               <div className="space-y-4">
                 {/* Upload File Button */}
                 <button
                   onClick={triggerFileUpload}
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white p-4 rounded-xl font-bold hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg text-lg"
                 >
                   <Upload className="h-5 w-5" />
-                  <span>📄 Subir Archivo</span>
+                  <span>📄 Elegir Archivo</span>
                 </button>
 
                 {/* Take Photo Button */}
                 <button
                   onClick={triggerCameraCapture}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg"
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg text-lg"
                 >
                   <Camera className="h-5 w-5" />
-                  <span>📸 Hacer Foto</span>
+                  <span>📸 Tomar Foto</span>
                 </button>
               </div>
 
-              <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                 <div className="flex items-start space-x-3">
-                  <AlertCircle className="h-5 w-5 text-purple-600 mt-0.5" />
+                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div>
-                    <h5 className="font-bold text-purple-800 mb-1">Formatos aceptados</h5>
-                    <p className="text-sm text-purple-700">
+                    <h5 className="font-bold text-blue-800 mb-1">Formatos aceptados</h5>
+                    <p className="text-sm text-blue-700">
                       PDF, JPG, PNG, GIF (máximo 10MB)
                     </p>
                   </div>
@@ -305,36 +305,78 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
             </div>
           )}
 
-          {step === 'form' && uploadedFile && (
+          {step === 'preview' && uploadedFile && (
             <div className="space-y-6">
               <div className="text-center">
-                <h4 className="text-lg font-black text-gray-900 mb-2">Completa tus datos</h4>
-                <p className="text-gray-600 text-sm">Para enviarte la comparación personalizada</p>
+                <h4 className="text-lg font-black text-gray-900 mb-2">¡Factura subida correctamente!</h4>
+                <p className="text-gray-600 text-sm">Revisa que sea la correcta antes de continuar</p>
               </div>
 
-              {/* File preview */}
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <div className="flex items-center space-x-3">
-                  <FileText className="h-5 w-5 text-green-600" />
+              {/* File preview - Larger and more prominent */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border-2 border-green-200 shadow-lg">
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
                   <div className="flex-1">
-                    <p className="font-bold text-green-800 text-sm truncate">{uploadedFile.name}</p>
-                    <p className="text-xs text-green-600">
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                    <p className="font-black text-green-800 text-lg truncate">{uploadedFile.name}</p>
+                    <p className="text-sm text-green-600 font-semibold">
+                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB • {uploadedFile.type.includes('pdf') ? 'PDF' : 'Imagen'}
                     </p>
                   </div>
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
                 
-                {/* Image preview if it's an image */}
+                {/* Image preview if it's an image - Larger */}
                 {uploadedFile.type.startsWith('image/') && fileDataUrl && (
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <img 
                       src={fileDataUrl} 
-                      alt="Preview" 
-                      className="w-full h-32 object-cover rounded-lg border border-green-300"
+                      alt="Vista previa de la factura" 
+                      className="w-full max-h-64 object-contain rounded-xl border-2 border-green-300 bg-white"
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Action buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => setStep('form')}
+                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-6 py-4 rounded-xl font-black text-lg hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  ✅ Continuar con mis datos
+                </button>
+                
+                <button
+                  onClick={() => setStep('upload')}
+                  className="w-full border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all duration-300"
+                >
+                  🔄 Cambiar archivo
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'form' && uploadedFile && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h4 className="text-lg font-black text-gray-900 mb-2">Ahora completa tus datos</h4>
+                <p className="text-gray-600 text-sm">Para que nuestro equipo te contacte con la mejor oferta</p>
+              </div>
+
+              {/* File preview - Compact version */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-5 w-5 text-gray-600" />
+                  <div className="flex-1">
+                    <p className="font-bold text-gray-800 text-sm truncate">{uploadedFile.name}</p>
+                    <p className="text-xs text-gray-600">
+                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                </div>
               </div>
 
               {/* Form */}
@@ -405,10 +447,10 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
 
               <div className="text-center">
                 <button
-                  onClick={() => setStep('upload')}
+                  onClick={() => setStep('preview')}
                   className="text-sm text-purple-600 hover:text-purple-800 font-semibold underline"
                 >
-                  ← Cambiar archivo
+                  ← Volver a la factura
                 </button>
               </div>
             </div>
@@ -417,15 +459,14 @@ O puedes hacer una captura de pantalla de esta imagen y enviarla:`;
           {step === 'success' && (
             <div className="text-center py-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h4 className="text-xl font-black text-green-600 mb-4">¡Enviando a WhatsApp!</h4>
+              <h4 className="text-xl font-black text-green-600 mb-4">¡Enviado a WhatsApp!</h4>
               <p className="text-gray-700 mb-6">
-                Se está abriendo WhatsApp con tu mensaje y enlace al archivo.
+                Tu factura y datos han sido enviados correctamente.
               </p>
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <p className="text-sm text-green-700 font-semibold">
-                  📱 WhatsApp se abre automáticamente<br/>
-                  📎 Enlace al archivo incluido<br/>
-                  📸 Si es imagen, también puedes hacer captura<br/>
+                  📱 Mensaje enviado por WhatsApp<br/>
+                  📄 Factura incluida en el mensaje<br/>
                   ⚡ Análisis en menos de 5 minutos<br/>
                   💰 Ahorro medio: €487/año<br/>
                   ✅ Sin compromiso ni permanencia
