@@ -188,7 +188,7 @@ Vengo de luzia.pro - Comparador IA`;
       window.open(whatsappUrl, '_blank');
       
       // Mostrar instrucciones detalladas
-      setTimeout(() => {
+      setTimeout(async () => {
         await navigator.share({
           alert(`📎 ARCHIVO DESCARGADO: ${uploadedFile.name}
 
