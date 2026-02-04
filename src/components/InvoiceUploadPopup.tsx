@@ -27,6 +27,12 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Verificar tamaño del archivo (máximo 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 10MB permitido.');
+        return;
+      }
+      
       setUploadedFile(file);
       setStep('form');
     }
@@ -39,15 +45,6 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     });
   };
 
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadedFile) return;
@@ -55,10 +52,14 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
     setIsSubmitting(true);
 
     try {
-      // Convertir archivo a base64 para poder enviarlo
-      const base64File = await convertFileToBase64(uploadedFile);
-      
-      // Preparar mensaje para WhatsApp
+      // Crear FormData para enviar el archivo
+      const formDataToSend = new FormData();
+      formDataToSend.append('file', uploadedFile);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('phone', formData.phone);
+
+      // Preparar mensaje para WhatsApp con información del archivo
       const whatsappMessage = `🔥 NUEVA SOLICITUD DE COMPARACIÓN - LUZIA 🔥
 
 📋 DATOS DEL CLIENTE:
@@ -76,26 +77,40 @@ const InvoiceUploadPopup: React.FC<InvoiceUploadPopupProps> = ({ isOpen, onClose
 ⚡ Vengo de luzia.pro - Comparador IA
 
 ---
-NOTA: El archivo de la factura se ha subido correctamente. Por favor, proceder con el análisis y comparación de tarifas.`;
+NOTA: El cliente enviará el archivo de la factura en el siguiente mensaje. Por favor, proceder con el análisis y comparación de tarifas una vez recibido.`;
+
+      // Mostrar paso de éxito
+      setStep('success');
 
       // Codificar mensaje para URL
       const encodedMessage = encodeURIComponent(whatsappMessage);
       const phoneNumber = '34621508300';
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-      // Mostrar paso de éxito
-      setStep('success');
-
       // Abrir WhatsApp después de un breve delay
       setTimeout(() => {
         window.open(whatsappUrl, '_blank');
+        
+        // Mostrar instrucciones para enviar el archivo
+        setTimeout(() => {
+          alert(`📎 IMPORTANTE: 
+
+Después de enviar el mensaje de texto, por favor:
+
+1️⃣ Adjunta el archivo de tu factura en WhatsApp
+2️⃣ Puedes usar el botón 📎 (clip) en WhatsApp
+3️⃣ Selecciona "Documento" o "Cámara" 
+4️⃣ Envía tu factura: ${uploadedFile.name}
+
+¡Nuestro equipo analizará tu factura inmediatamente!`);
+        }, 2000);
       }, 1500);
 
-      // Cerrar popup después de 3 segundos
+      // Cerrar popup después de 4 segundos
       setTimeout(() => {
         onClose();
         resetForm();
-      }, 3000);
+      }, 4000);
 
     } catch (error) {
       console.error('Error al procesar la factura:', error);
@@ -115,6 +130,14 @@ NOTA: El archivo de la factura se ha subido correctamente. Por favor, proceder c
   const handleClose = () => {
     onClose();
     resetForm();
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const triggerCameraCapture = () => {
+    cameraInputRef.current?.click();
   };
 
   if (!isOpen) return null;
@@ -162,7 +185,7 @@ NOTA: El archivo de la factura se ha subido correctamente. Por favor, proceder c
               <div className="space-y-4">
                 {/* Upload File Button */}
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={triggerFileUpload}
                   className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white p-4 rounded-xl font-bold hover:from-purple-700 hover:to-cyan-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg"
                 >
                   <Upload className="h-5 w-5" />
@@ -171,7 +194,7 @@ NOTA: El archivo de la factura se ha subido correctamente. Por favor, proceder c
 
                 {/* Take Photo Button */}
                 <button
-                  onClick={() => cameraInputRef.current?.click()}
+                  onClick={triggerCameraCapture}
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-3 shadow-lg"
                 >
                   <Camera className="h-5 w-5" />
@@ -311,13 +334,14 @@ NOTA: El archivo de la factura se ha subido correctamente. Por favor, proceder c
           {step === 'success' && (
             <div className="text-center py-8">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h4 className="text-xl font-black text-green-600 mb-4">¡Factura Enviada!</h4>
+              <h4 className="text-xl font-black text-green-600 mb-4">¡Datos Enviados!</h4>
               <p className="text-gray-700 mb-6">
-                Te estamos redirigiendo a WhatsApp donde nuestro equipo analizará tu factura 
-                y te enviará las mejores ofertas personalizadas.
+                Te estamos redirigiendo a WhatsApp. Después del mensaje de texto, 
+                <strong> adjunta tu factura usando el botón 📎 de WhatsApp</strong>.
               </p>
               <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <p className="text-sm text-green-700 font-semibold">
+                  📎 Recuerda adjuntar tu factura en WhatsApp<br/>
                   ⚡ Análisis en menos de 5 minutos<br/>
                   💰 Ahorro medio: €487/año<br/>
                   ✅ Sin compromiso ni permanencia
