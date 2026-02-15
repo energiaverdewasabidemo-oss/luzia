@@ -276,18 +276,6 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
           ))}
         </div>
 
-        {/* CTA intermedio después de beneficios */}
-        <div className="bg-gradient-to-r from-green-900/60 to-emerald-900/60 backdrop-blur-xl rounded-3xl p-6 border border-green-300/30 shadow-2xl text-center">
-          <h3 className="text-xl font-black text-white mb-4">🚀 ¿Listo para ahorrar?</h3>
-          <button
-            onClick={handleWhatsAppClick}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl font-black text-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center space-x-3 mx-auto"
-          >
-            <MessageCircle className="h-6 w-6" />
-            <span>EMPEZAR AHORA</span>
-          </button>
-        </div>
-
         {/* Características avanzadas */}
         <div className="bg-gradient-to-r from-black/40 via-purple-900/40 to-black/40 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
           <h2 className="text-2xl font-black text-center bg-gradient-to-r from-purple-200 to-cyan-200 bg-clip-text text-transparent mb-8">
@@ -304,18 +292,6 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
               </div>
             ))}
           </div>
-        </div>
-
-        {/* CTA después de características */}
-        <div className="text-center">
-          <button
-            onClick={handleWhatsAppClick}
-            className="bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 text-white px-10 py-5 rounded-2xl font-black text-xl hover:from-green-400 hover:via-green-500 hover:to-emerald-500 transition-all duration-300 transform hover:scale-110 shadow-2xl border-2 border-white/30 flex items-center justify-center space-x-4 mx-auto"
-          >
-            <span>📱</span>
-            <span>CALCULAR MI AHORRO</span>
-            <span>⚡</span>
-          </button>
         </div>
 
         {/* Cómo funciona */}
@@ -339,18 +315,6 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
               </div>
             ))}
           </div>
-        </div>
-
-        {/* CTA después de cómo funciona */}
-        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-3xl p-6 border border-green-300/30 shadow-2xl text-center">
-          <p className="text-white font-bold mb-4">✅ Proceso súper fácil en 3 pasos</p>
-          <button
-            onClick={handleWhatsAppClick}
-            className="bg-gradient-to-r from-green-600 to-emerald-700 text-white px-8 py-4 rounded-2xl font-black text-lg hover:from-green-500 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center space-x-3 mx-auto"
-          >
-            <MessageCircle className="h-5 w-5" />
-            <span>EMPEZAR PROCESO</span>
-          </button>
         </div>
 
         {/* Testimonios */}
@@ -453,27 +417,6 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
           >
             <MessageCircle className="h-6 w-6 animate-bounce" />
             <span>RESOLVER DUDAS</span>
-          </button>
-        </div>
-
-        {/* Botones CTA */}
-        <div className="space-y-4">
-          <button
-            onClick={handleWhatsAppClick}
-            className="w-full bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 text-white py-5 px-6 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 hover:from-green-400 hover:via-green-500 hover:to-emerald-500 transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 shadow-2xl hover:shadow-green-500/50 border-2 border-white/30 relative overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-            <MessageCircle className="h-6 w-6 animate-bounce relative z-10" />
-            <span className="relative z-10">CALCULAR POR WHATSAPP</span>
-            <div className="w-3 h-3 bg-white rounded-full animate-ping relative z-10"></div>
-          </button>
-
-          <button
-            onClick={handleContactClick}
-            className="w-full border-2 border-white/50 text-white py-5 px-6 rounded-2xl font-black text-lg hover:bg-white/20 transition-all duration-500 transform hover:scale-105 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/50 relative overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <span className="relative z-10">💬 CONTÁCTANOS</span>
           </button>
         </div>
 
