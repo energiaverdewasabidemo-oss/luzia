@@ -3,10 +3,9 @@ import { Brain, Users, Shield, Zap, TrendingUp, Clock } from 'lucide-react';
 
 interface BenefitsSectionProps {
   onChatOpen: (message?: string) => void;
-  onInvoiceUpload?: () => void;
 }
 
-const BenefitsSection: React.FC<BenefitsSectionProps> = ({ onChatOpen, onInvoiceUpload }) => {
+const BenefitsSection: React.FC<BenefitsSectionProps> = ({ onChatOpen }) => {
   const benefits = [
     {
       icon: Brain,
@@ -106,10 +105,10 @@ const BenefitsSection: React.FC<BenefitsSectionProps> = ({ onChatOpen, onInvoice
                 Únete a los +100.000 usuarios que ya ahorran con LUZIA comparando tarifas de luz y gas automáticamente
               </p>
               <button 
-                onClick={onInvoiceUpload}
+                onClick={() => onChatOpen('Quiero empezar a ahorrar en mi factura')}
                 className="bg-white text-purple-800 px-8 lg:px-12 py-4 lg:py-6 rounded-xl lg:rounded-2xl font-black text-lg lg:text-2xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 lg:hover:scale-110 shadow-xl lg:shadow-2xl border-2 lg:border-4 border-purple-200"
               >
-                📄 FOTO/SUBIR FACTURA
+                💡 COMPARAR TARIFAS GRATIS
               </button>
             </div>
           </div>
