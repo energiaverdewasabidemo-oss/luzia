@@ -8,6 +8,7 @@ import AboutUsPage from './components/AboutUsPage';
 import TrustPage from './components/TrustPage';
 import ContactPage from './components/ContactPage';
 import Header from './components/Header';
+import ComparadorLanding from './components/ComparadorLanding';
 import HeroSection from './components/HeroSection';
 import BenefitsSection from './components/BenefitsSection';
 import HowItWorksSection from './components/HowItWorksSection';
@@ -74,6 +75,10 @@ function App() {
   
   if (currentPage === 'contact') {
     return <ContactPage onBack={handleBackToHome} />;
+  }
+  
+  if (currentPage === 'comparador') {
+    return <ComparadorLanding onBack={handleBackToHome} onChatOpen={handleChatOpen} />;
   }
   
   if (currentPage === 'chat') {
