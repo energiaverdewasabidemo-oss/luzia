@@ -352,6 +352,18 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
           </div>
         </div>
 
+        {/* CTA grande después de testimonios */}
+        <div className="text-center">
+          <button
+            onClick={handleWhatsAppClick}
+            className="w-full bg-gradient-to-r from-green-400 via-green-500 to-emerald-600 text-white py-6 px-8 rounded-3xl font-black text-xl flex items-center justify-center space-x-4 hover:scale-110 transition-all duration-500 shadow-2xl animate-pulse border-2 border-white/30"
+          >
+            <span>💰</span>
+            <span>¡QUIERO AHORRAR YA!</span>
+            <MessageCircle className="h-6 w-6 animate-bounce" />
+          </button>
+        </div>
+
         {/* Compañías */}
         <div className="text-center">
           <h3 className="text-xl font-bold text-white mb-6">
@@ -382,22 +394,41 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
           </div>
         </div>
 
-        {/* Botones CTA */}
-        <div className="space-y-4">
+        {/* CTA después de FAQ */}
+        <div className="text-center">
           <button
             onClick={handleWhatsAppClick}
-            className="w-full bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 text-white py-5 px-6 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 hover:from-green-400 hover:via-green-500 hover:to-emerald-500 transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 shadow-2xl hover:shadow-green-500/50 border-2 border-white/30 relative overflow-hidden group"
+            className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center space-x-3 hover:scale-105 transition-all duration-300 shadow-xl"
+          >
+            <span>❓</span>
+            <span>RESOLVER MIS DUDAS</span>
+            <MessageCircle className="h-5 w-5 animate-bounce" />
+          </button>
+        </div>
+
+        {/* Botones CTA */}
+        <div className="space-y-6">
+          <button
+            onClick={handleWhatsAppClick}
+            className="w-full bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 text-white py-8 px-8 rounded-3xl font-black text-2xl flex items-center justify-center space-x-4 hover:from-green-400 hover:via-green-500 hover:to-emerald-500 transition-all duration-500 transform hover:scale-110 hover:-translate-y-2 shadow-2xl hover:shadow-green-500/70 border-4 border-white/40 relative overflow-hidden group animate-pulse"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-            <MessageCircle className="h-6 w-6 animate-bounce relative z-10" />
+            <MessageCircle className="h-8 w-8 animate-bounce relative z-10" />
             <span className="relative z-10">CALCULAR POR WHATSAPP</span>
-            <div className="w-3 h-3 bg-white rounded-full animate-ping relative z-10"></div>
+            <div className="w-4 h-4 bg-white rounded-full animate-ping relative z-10"></div>
           </button>
 
           <button
             onClick={handleContactClick}
-            className="w-full border-2 border-white/50 text-white py-5 px-6 rounded-2xl font-black text-lg hover:bg-white/20 transition-all duration-500 transform hover:scale-105 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/50 relative overflow-hidden group"
+            className="w-full border-4 border-white/60 text-white py-6 px-8 rounded-3xl font-black text-xl hover:bg-white/30 transition-all duration-500 transform hover:scale-105 backdrop-blur-xl shadow-2xl hover:shadow-purple-500/70 relative overflow-hidden group"
           >
+          >
+            <span>📄</span>
+            <span>EMPEZAR PROCESO AHORA</span>
+            <MessageCircle className="h-5 w-5 animate-bounce" />
+          </button>
+        </div>
+
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <span className="relative z-10">💬 CONTÁCTANOS</span>
           </button>
@@ -459,6 +490,18 @@ const ComparadorLanding: React.FC<ComparadorLandingProps> = ({ onBack, onChatOpe
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Botón Flotante Fijo Inferior */}
+      <div className="fixed bottom-4 left-4 right-4 z-50">
+        <button
+          onClick={handleWhatsAppClick}
+          className="w-full bg-gradient-to-r from-green-500 via-green-600 to-emerald-600 text-white py-4 px-6 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 shadow-2xl animate-pulse border-2 border-white/40"
+        >
+          <MessageCircle className="h-6 w-6 animate-bounce" />
+          <span>💬 CALCULAR POR WHATSAPP</span>
+          <div className="w-3 h-3 bg-white rounded-full animate-ping"></div>
+        </button>
       </div>
 
       <style jsx>{`
