@@ -9,6 +9,7 @@ import TrustPage from './components/TrustPage';
 import ContactPage from './components/ContactPage';
 import Header from './components/Header';
 import ComparadorLanding from './components/ComparadorLanding';
+import SubirFacturaLanding from './components/SubirFacturaLanding';
 import HeroSection from './components/HeroSection';
 import BenefitsSection from './components/BenefitsSection';
 import HowItWorksSection from './components/HowItWorksSection';
@@ -80,7 +81,11 @@ function App() {
   if (currentPage === 'comparador') {
     return <ComparadorLanding onBack={handleBackToHome} onChatOpen={handleChatOpen} />;
   }
-  
+
+  if (currentPage === 'subir-factura') {
+    return <SubirFacturaLanding onBack={handleBackToHome} onChatOpen={handleChatOpen} />;
+  }
+
   if (currentPage === 'chat') {
     handleChatAction();
     setCurrentPage('home');

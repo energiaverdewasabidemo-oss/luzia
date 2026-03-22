@@ -63,8 +63,8 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
               Cómo funciona
               <div className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full"></div>
             </a>
-            <a 
-              href="#comparador" 
+            <a
+              href="#comparador"
               onClick={(e) => {
                 e.preventDefault();
                 document.getElementById('comparador')?.scrollIntoView({ behavior: 'smooth' });
@@ -74,8 +74,19 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
               Comparar tarifas
               <div className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full"></div>
             </a>
-            <a 
-              href="#" 
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                onPageChange?.('subir-factura');
+              }}
+              className="relative text-gray-800 hover:text-lime-600 font-black text-sm lg:text-lg transition-all duration-300 transform hover:scale-110 group cursor-pointer"
+            >
+              Subir factura
+              <div className="absolute -bottom-2 left-0 w-0 h-1 bg-gradient-to-r from-lime-500 to-green-500 group-hover:w-full transition-all duration-300 rounded-full"></div>
+            </a>
+            <a
+              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 onPageChange?.('about');
@@ -117,8 +128,8 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
               >
                 Cómo funciona
               </a>
-              <a 
-                href="#comparador" 
+              <a
+                href="#comparador"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMobileMenuOpen(false);
@@ -128,8 +139,19 @@ const Header: React.FC<HeaderProps> = ({ onChatOpen, onPageChange }) => {
               >
                 Comparar tarifas
               </a>
-              <a 
-                href="#" 
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsMobileMenuOpen(false);
+                  onPageChange?.('subir-factura');
+                }}
+                className="block text-gray-800 hover:text-lime-600 font-bold text-lg py-2 border-b border-purple-100"
+              >
+                Subir factura
+              </a>
+              <a
+                href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   setIsMobileMenuOpen(false);
