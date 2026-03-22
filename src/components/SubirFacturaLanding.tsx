@@ -155,6 +155,149 @@ const SubirFacturaLanding: React.FC<SubirFacturaLandingProps> = ({ onBack, onCha
           </button>
         </div>
 
+        {/* NO somos los típicos pesados */}
+        <div className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-8 border-2 border-lime-400/20 shadow-2xl text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-red-700 to-red-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <div className="w-7 h-7 border-4 border-white rounded-full"></div>
+              <div className="absolute w-9 h-1 bg-white rotate-45 rounded-full"></div>
+            </div>
+          </div>
+          <h2 className="text-2xl font-black text-center mb-6">
+            <span className="text-red-400">NO somos</span>
+            <span className="text-white"> los típicos pesados que te llaman constantemente</span>
+          </h2>
+          <div className="space-y-4 text-center">
+            <p className="text-base text-gray-200">
+              <span className="text-lime-400 font-bold">Nuestra metodología es diferente.</span>{' '}
+              No somos los vendedores de luz de turno que te acosan sin parar.
+            </p>
+            <p className="text-gray-400 text-sm">
+              Te contactamos una sola vez, con un análisis real. Si podemos ahorrarte dinero, te lo contamos. Si no, no te molestamos más. Así de simple y transparente.
+            </p>
+          </div>
+        </div>
+
+        {/* Nuestra metodología de análisis */}
+        <div className="bg-gradient-to-r from-lime-900/50 to-green-900/50 backdrop-blur-xl rounded-3xl p-8 border-2 border-lime-400/30 shadow-2xl">
+          <div className="w-16 h-16 bg-gradient-to-r from-lime-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <CheckCircle className="h-8 w-8 text-black" />
+          </div>
+          <h2 className="text-2xl font-black text-center mb-3">
+            <span className="text-white">Nuestra </span>
+            <span className="bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">metodología de análisis</span>
+          </h2>
+          <p className="text-center text-gray-300 mb-8 text-sm">
+            Basada en más de <span className="text-lime-400 font-bold">200.000 contratos revisados</span> y herramientas de inteligencia artificial
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-5 border border-lime-400/20">
+              <p className="text-lime-400 font-bold mb-2 flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4" />
+                <span>Análisis predictivo con IA</span>
+              </p>
+              <p className="text-gray-300 text-xs">Comparamos tu factura con miles de tarifas en tiempo real para encontrar la mejor opción.</p>
+            </div>
+            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-5 border border-lime-400/20">
+              <p className="text-lime-400 font-bold mb-2 flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4" />
+                <span>Base de datos actualizada</span>
+              </p>
+              <p className="text-gray-300 text-xs">Acceso a todas las ofertas del mercado, incluyendo las que no se publicitan.</p>
+            </div>
+            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-5 border border-lime-400/20">
+              <p className="text-lime-400 font-bold mb-2 flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4" />
+                <span>Análisis de consumo</span>
+              </p>
+              <p className="text-gray-300 text-xs">Estudiamos tu patrón de consumo para optimizar al máximo tu ahorro.</p>
+            </div>
+            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-5 border border-lime-400/20">
+              <p className="text-lime-400 font-bold mb-2 flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4" />
+                <span>92% de éxito</span>
+              </p>
+              <p className="text-gray-300 text-xs">En más del 92% de casos encontramos ahorros significativos.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Habla con LuzIA / WhatsApp section */}
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl">
+            <Phone className="h-8 w-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-black mb-2">
+            <span className="text-white">Habla con </span>
+            <span className="bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">LuzIA</span>
+          </h2>
+          <p className="text-gray-300 mb-6">Nuestro comparador inteligente en WhatsApp. Respuesta instantánea.</p>
+        </div>
+
+        <div className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-8 border border-green-500/30 shadow-2xl shadow-green-900/30 text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-green-500/40">
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <Phone className="h-5 w-5 text-white" />
+              </div>
+            </div>
+          </div>
+          <h3 className="text-3xl font-black mb-2">
+            <span className="text-white">Chatea con </span>
+            <span className="bg-gradient-to-r from-lime-400 to-green-400 bg-clip-text text-transparent">LuzIA</span>
+          </h3>
+          <p className="text-gray-400 font-semibold mb-3">Tu asesora energética 24/7</p>
+          <p className="text-gray-300 text-sm mb-8">
+            Envía tu factura por WhatsApp y recibe un análisis completo al instante. Sin formularios, sin esperas.
+          </p>
+          <div className="grid grid-cols-3 gap-3 mb-8">
+            <div className="bg-gray-700/60 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <Zap className="h-6 w-6 text-lime-400 mx-auto mb-2" />
+              <p className="text-white text-xs font-semibold">Respuesta instantánea</p>
+            </div>
+            <div className="bg-gray-700/60 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <CheckCircle className="h-6 w-6 text-lime-400 mx-auto mb-2" />
+              <p className="text-white text-xs font-semibold">IA especializada</p>
+            </div>
+            <div className="bg-gray-700/60 backdrop-blur-xl rounded-2xl p-4 border border-white/10 text-center">
+              <Shield className="h-6 w-6 text-lime-400 mx-auto mb-2" />
+              <p className="text-white text-xs font-semibold">Ahorro garantizado</p>
+            </div>
+          </div>
+          <button
+            onClick={handleChatClick}
+            className="w-full bg-gradient-to-r from-green-500 via-lime-500 to-green-600 text-black py-5 px-8 rounded-2xl font-black text-lg flex items-center justify-center space-x-3 hover:from-green-400 hover:via-lime-400 hover:to-green-500 transition-all duration-300 transform hover:scale-105 shadow-2xl border-2 border-lime-300/50 mb-4"
+          >
+            <Phone className="h-6 w-6" />
+            <span>Chatear con LuzIA ahora →</span>
+          </button>
+          <div className="flex justify-center items-center space-x-6">
+            <div className="flex items-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-lime-400" />
+              <span className="text-gray-400 text-sm">Sin instalación</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Shield className="h-4 w-4 text-lime-400" />
+              <span className="text-gray-400 text-sm">100% Seguro</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <CheckCircleIcon className="h-4 w-4 text-lime-400" />
+              <span className="text-gray-400 text-sm">Gratis</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Teléfono de contacto */}
+        <div className="text-center">
+          <a
+            href="tel:+34621508300"
+            className="inline-flex items-center space-x-3 bg-gray-800/60 backdrop-blur-xl px-8 py-4 rounded-2xl border border-green-500/30 text-white hover:text-lime-300 transition-all duration-300 hover:border-lime-400/50"
+          >
+            <Phone className="h-5 w-5 text-lime-400" />
+            <span className="font-semibold text-lg">+34 621 50 83 00</span>
+          </a>
+        </div>
+
         {/* Badges de confianza */}
         <div className="flex justify-center items-center space-x-6 py-4">
           <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-full border border-white/20">
